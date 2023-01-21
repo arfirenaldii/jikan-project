@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export default function Home() {
   const [data, setData] = useState(null);
@@ -39,35 +40,36 @@ export default function Home() {
       {error && (
         <div>{`There is a problem fetching the post data - ${error}`}</div>
       )}
-      <div className="grid gap-4 grid-cols-5">
-        {data?.data.map((anime) => (
-          <div key={anime.mal_id}>
-            <img
-              className="h-[250px] w-full object-cover rounded-lg"
-              src={anime.images.jpg.image_url}
-              alt={anime.title}
-            />
-            <div className="line-clamp-2">{anime.title}</div>
+      {data && (
+        <>
+          <div className="grid gap-4 grid-cols-5">
+            {data.data.map((anime) => (
+              <Link key={anime.mal_id} to={`/anime/${anime.mal_id}`}>
+                <img
+                  className="h-[250px] w-full object-cover rounded-lg"
+                  src={anime.images.jpg.image_url}
+                  alt={anime.title}
+                />
+                <div className="line-clamp-2">{anime.title}</div>
+              </Link>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="flex justify-center gap-3 mt-3">
-        <button
-          onClick={() =>
-            data.pagination.current_page !== 1 &&
-            setCurrentPage(currentPage - 1)
-          }
-        >
-          Prev
-        </button>
-        <button
-          onClick={() =>
-            data.pagination.has_next_page && setCurrentPage(currentPage + 1)
-          }
-        >
-          Next
-        </button>
-      </div>
+          <div className="flex justify-center gap-3 mt-3">
+            {data.pagination.current_page !== 1 && (
+              <button onClick={() => setCurrentPage(currentPage - 1)}>
+                Prev
+              </button>
+            )}
+            <button
+              onClick={() =>
+                data.pagination.has_next_page && setCurrentPage(currentPage + 1)
+              }
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
