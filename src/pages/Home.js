@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import Pagination from "../components/Pagination";
+import LoadingAnime from "../components/LoadingAnime";
 
 function usePrevious(value) {
   const ref = useRef();
@@ -145,7 +146,14 @@ export default function Home() {
     }
   }, [searchParams]);
 
+  const resetData = () => {
+    setLoading(true);
+    setData(null);
+  };
+
   useEffect(() => {
+    window.scrollTo(0, 0);
+    resetData();
     getData();
   }, [currentPage, q]);
 
@@ -179,7 +187,7 @@ export default function Home() {
   };
   return (
     <div>
-      {loading && <div>A moment please...</div>}
+      {loading && <LoadingAnime />}
       {error && (
         <div>{`There is a problem fetching the post data - ${error}`}</div>
       )}
