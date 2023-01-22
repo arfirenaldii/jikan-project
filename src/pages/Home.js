@@ -6,10 +6,9 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import Pagination from "../components/Pagination";
 import LoadingAnime from "../components/LoadingAnime";
 
-function usePrevious(value) {
+const usePrevious = (value) => {
   const ref = useRef();
   useEffect(() => {
     ref.current = value;
@@ -33,14 +32,10 @@ export default function Home() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const pageNumberLimit = 5;
-  const [maxPageLimit, setMaxPageLimit] = useState(5);
-  const [minPageLimit, setMinPageLimit] = useState(0);
-
   const getData = async () => {
     try {
       const response = await fetch(
-        `https://api.jikan.moe/v4/anime?page=${currentPage}&limit=15&q=${q}`
+        `https://api.jikan.moe/v4/anime?page=${currentPage}&limit=10&q=${q}`
       );
 
       if (!response.ok) {
@@ -60,17 +55,6 @@ export default function Home() {
     }
   };
 
-  const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      // getData();
-      setCurrentPage(1);
-
-      // TODO
-      // navigate(`/search/anime?page=1&q=${q}`);
-      navigate(`/?page=1&q=${q}`);
-    }
-  };
-
   const handleClickNext = () => {
     let nextPage;
     if (currentPage) {
@@ -78,19 +62,6 @@ export default function Home() {
     } else {
       nextPage = 2;
     }
-
-    if (currentPage + 1 > maxPageLimit) {
-      setMaxPageLimit(maxPageLimit + pageNumberLimit);
-      setMinPageLimit(minPageLimit + pageNumberLimit);
-    }
-
-    // if (currentPage + 1 >= 5) {
-    //   setMaxPageLimit(currentPage + 1 + 2);
-    //   setMinPageLimit(currentPage + 1 - 3);
-    // } else {
-    //   setMaxPageLimit(5);
-    //   setMinPageLimit(0);
-    // }
 
     setCurrentPage(nextPage);
 
@@ -104,20 +75,6 @@ export default function Home() {
 
   const handleClickPrev = () => {
     const prevPage = parseInt(currentPage) - 1;
-
-    if ((currentPage - 1) % pageNumberLimit === 0) {
-      setMaxPageLimit(maxPageLimit - pageNumberLimit);
-      setMinPageLimit(minPageLimit - pageNumberLimit);
-    }
-
-    // if (currentPage > 5) {
-    //   setMaxPageLimit(currentPage - 1 + 2);
-    //   setMinPageLimit(currentPage - 1 - 3);
-    // } else {
-    //   setMaxPageLimit(5);
-    //   setMinPageLimit(0);
-    // }
-
     setCurrentPage(prevPage);
 
     if (q) {
@@ -128,21 +85,13 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (searchParams.get("q")) {
+    if (searchParams.get("q") !== null) {
       setQ(searchParams.get("q"));
     }
 
     if (searchParams.get("page")) {
       let page = parseInt(searchParams.get("page"));
       setCurrentPage(page);
-
-      // if (currentPage >= 5) {
-      //   setMaxPageLimit(currentPage + 2);
-      //   setMinPageLimit(currentPage - 3);
-      // } else {
-      //   setMaxPageLimit(5);
-      //   setMinPageLimit(0);
-      // }
     }
   }, [searchParams]);
 
@@ -167,24 +116,10 @@ export default function Home() {
     }
   }, [location]);
 
-  const onPageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-
-    // if (pageNumber >= 5) {
-    //   setMaxPageLimit(pageNumber + 2);
-    //   setMinPageLimit(pageNumber - 3);
-    // } else {
-    //   setMaxPageLimit(5);
-    //   setMinPageLimit(0);
-    // }
-
-    if (q) {
-      navigate(`/?page=${pageNumber}&q=${q}`);
-      return;
-    }
-
-    navigate(`/?page=${pageNumber}`);
+  const handleClickGoHome = () => {
+    navigate("/");
   };
+
   return (
     <div>
       {loading && <LoadingAnime />}
@@ -193,17 +128,19 @@ export default function Home() {
       )}
       {data && (
         <>
-          {/* <label>
-            <input
-              type="search"
-              name="search-anime"
-              placeholder="Search anime..."
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-          </label> */}
-          {/* <button onClick={getData}>Search</button> */}
+          {data.data.length === 0 && (
+            <div>
+              <div className="text-xl font-medium">{`Anime not found`}</div>
+              <div className="mt-3 text-center">
+                <button
+                  className="p-2 w-fit rounded-lg bg-blue-600 text-white"
+                  onClick={handleClickGoHome}
+                >
+                  Go Home
+                </button>
+              </div>
+            </div>
+          )}
           <div className="grid gap-4 lg:grid-cols-5 md:grid-cols-3 grid-cols-2 mt-3">
             {data.data.map((anime) => (
               <Link key={anime.mal_id} to={`/anime/${anime.mal_id}`}>
@@ -216,28 +153,24 @@ export default function Home() {
               </Link>
             ))}
           </div>
-          <Pagination
-            className="mt-3"
-            currentPage={currentPage}
-            maxPageLimit={maxPageLimit}
-            minPageLimit={minPageLimit}
-            onPrevClick={handleClickPrev}
-            onNextClick={handleClickNext}
-            onPageChange={onPageChange}
-            totalPages={data.pagination.last_visible_page}
-          />
-          {/* <div className="flex justify-center gap-3 mt-3">
-            {data.pagination.current_page !== 1 && (
-              <button onClick={handleClickPrev}>Prev</button>
-            )}
-            {data.pagination.has_next_page && (
+          {data.data.length > 0 && (
+            <div className="flex justify-center gap-3 mt-6">
               <button
-                onClick={data.pagination.has_next_page && handleClickNext}
+                className="p-2 w-[100px] rounded-lg bg-blue-600 disabled:bg-gray-600 text-white"
+                onClick={handleClickPrev}
+                disabled={data.pagination.current_page === 1}
+              >
+                Prev
+              </button>
+              <button
+                className="p-2 w-[100px] rounded-lg bg-blue-600 disabled:bg-gray-600 text-white"
+                onClick={handleClickNext}
+                disabled={!data.pagination.has_next_page}
               >
                 Next
               </button>
-            )}
-          </div> */}
+            </div>
+          )}
         </>
       )}
     </div>
