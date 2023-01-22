@@ -1,15 +1,10 @@
 import { Outlet, Link } from "react-router-dom";
+import Header from "../components/Header";
 
 const Layout = () => {
   return (
     <>
-      <nav>
-        <ul className="flex gap-3">
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-        </ul>
-      </nav>
+      <Header />
 
       <div className="m-auto max-w-[1000px]">
         <Outlet />

@@ -143,12 +143,12 @@ export default function Home() {
       //   setMinPageLimit(0);
       // }
     }
-  }, []);
+  }, [searchParams]);
 
   // TODO searchParams
   useEffect(() => {
     getData();
-  }, [currentPage, searchParams]);
+  }, [currentPage, q]);
 
   // const previousState = usePrevious({ location });
   // useEffect(() => {
@@ -187,7 +187,7 @@ export default function Home() {
       )}
       {data && (
         <>
-          <label>
+          {/* <label>
             <input
               type="search"
               name="search-anime"
@@ -196,8 +196,8 @@ export default function Home() {
               onChange={(e) => setQ(e.target.value)}
               onKeyDown={handleKeyDown}
             />
-          </label>
-          <button onClick={getData}>Search</button>
+          </label> */}
+          {/* <button onClick={getData}>Search</button> */}
           <div className="grid gap-4 grid-cols-5 mt-3">
             {data.data.map((anime) => (
               <Link key={anime.mal_id} to={`/anime/${anime.mal_id}`}>
