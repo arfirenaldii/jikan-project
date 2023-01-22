@@ -145,20 +145,19 @@ export default function Home() {
     }
   }, [searchParams]);
 
-  // TODO searchParams
   useEffect(() => {
     getData();
   }, [currentPage, q]);
 
-  // const previousState = usePrevious({ location });
-  // useEffect(() => {
-  //   if (location !== previousState?.location && previousState?.location) {
-  //     if (!location.search) {
-  //       setCurrentPage(1);
-  //       setQ("");
-  //     }
-  //   }
-  // }, [location]);
+  const previousState = usePrevious({ location });
+  useEffect(() => {
+    if (location !== previousState?.location && previousState?.location) {
+      if (!location.search) {
+        setCurrentPage(1);
+        setQ("");
+      }
+    }
+  }, [location]);
 
   const onPageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -178,7 +177,6 @@ export default function Home() {
 
     navigate(`/?page=${pageNumber}`);
   };
-
   return (
     <div>
       {loading && <div>A moment please...</div>}

@@ -18,6 +18,8 @@ const Header = () => {
       if (searchParams.get("q")) {
         setQ(searchParams.get("q"));
       }
+    } else if (location.pathname === "/" && !location.search) {
+      setQ("");
     } else if (location.pathname !== "/") {
       setQ("");
     }
