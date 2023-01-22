@@ -1,6 +1,8 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 
+import LoadingDetail from "../components/LoadingDetail";
+
 export default function Anime() {
   let { id } = useParams();
   const [data, setData] = useState(null);
@@ -34,14 +36,14 @@ export default function Anime() {
 
   return (
     <div>
-      {loading && <div>Loading...</div>}
+      {loading && <LoadingDetail />}
       {error && (
         <div>{`There is a problem fetching the post data - ${error}`}</div>
       )}
       {data && (
         <div>
-          <h1>{data.title}</h1>
-          <div className="flex gap-3">
+          <h1 className="text-xl font-medium">{data.title}</h1>
+          <div className="flex gap-3 mt-3">
             <img
               className="h-[250px] rounded-lg"
               src={data.images.jpg.image_url}
@@ -53,7 +55,7 @@ export default function Anime() {
               <div>{data.episodes} Episode</div>
             </div>
           </div>
-          <div>{data.synopsis}</div>
+          <div className="mt-3">{data.synopsis}</div>
         </div>
       )}
     </div>

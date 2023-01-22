@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import "./SearchBar.css";
 
 const Header = () => {
   const [q, setQ] = useState("");
@@ -7,9 +8,13 @@ const Header = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
 
+  const handleSearch = () => {
+    navigate(`/?page=1&q=${q}`);
+  };
+
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
-      navigate(`/?page=1&q=${q}`);
+      handleSearch();
     }
   };
 
@@ -28,9 +33,11 @@ const Header = () => {
   return (
     <label>
       <input
+        className="h-[40px] px-5 py-2 rounded-lg"
         type="search"
         name="search-anime"
-        placeholder="Search anime..."
+        autoComplete="off"
+        placeholder="Search anime"
         value={q}
         onChange={(e) => setQ(e.target.value)}
         onKeyDown={handleKeyDown}
