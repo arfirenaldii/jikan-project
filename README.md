@@ -14,4 +14,4 @@ Running test
 npm run test
 ```
 
-This app running on https://main--astonishing-babka-bfc3c7.netlify.app/
+This app running on https://astonishing-babka-bfc3c7.netlify.app/
