@@ -1,17 +1,38 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import {
+  Link,
+  useNavigate,
+  useSearchParams,
+  useLocation,
+} from "react-router-dom";
+
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
 export default function Home() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [q, setQ] = useState("");
+
+  const [searchParams] = useSearchParams();
+  const [currentPage, setCurrentPage] = useState(searchParams.get("page"));
+  const [q, setQ] = useState(searchParams.get("q"));
+
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const getData = async () => {
     try {
+      let paramsQ = q ? q : "";
+      let paramsCurrentPage = currentPage ? currentPage : 1;
+
       const response = await fetch(
-        `https://api.jikan.moe/v4/anime?page=${currentPage}&limit=10&q=${q}`
+        `https://api.jikan.moe/v4/anime?page=${paramsCurrentPage}&limit=10&q=${paramsQ}`
       );
 
       if (!response.ok) {
@@ -31,15 +52,70 @@ export default function Home() {
     }
   };
 
-  useEffect(() => {
-    getData();
-  }, [currentPage]);
-
   const handleKeyDown = (event) => {
     if (event.key === "Enter") {
-      getData();
+      // getData();
+      setCurrentPage(1);
+
+      // TODO
+      // navigate(`/search/anime?page=1&q=${q}`);
+      navigate(`/?page=1&q=${q}`);
     }
   };
+
+  const handleClickNext = () => {
+    let nextPage;
+    if (currentPage) {
+      nextPage = parseInt(currentPage) + 1;
+    } else {
+      nextPage = 2;
+    }
+
+    setCurrentPage(nextPage);
+
+    if (q) {
+      navigate(`/?page=${nextPage}&q=${q}`);
+      return;
+    }
+
+    navigate(`/?page=${nextPage}`);
+  };
+
+  const handleClickPrev = () => {
+    const prevPage = parseInt(currentPage) - 1;
+    setCurrentPage(prevPage);
+
+    if (q) {
+      navigate(`/?page=${prevPage}&q=${q}`);
+      return;
+    }
+    navigate(`/?page=${prevPage}`);
+  };
+
+  useEffect(() => {
+    if (searchParams.get("q")) {
+      setQ(searchParams.get("q"));
+    }
+
+    if (searchParams.get("page")) {
+      setCurrentPage(searchParams.get("page"));
+    }
+  }, []);
+
+  // TODO searchParams
+  useEffect(() => {
+    getData();
+  }, [currentPage, searchParams]);
+
+  // const previousState = usePrevious({ location });
+  // useEffect(() => {
+  //   if (location !== previousState?.location && previousState?.location) {
+  //     if (!location.search) {
+  //       setCurrentPage(1);
+  //       setQ("");
+  //     }
+  //   }
+  // }, [location]);
 
   return (
     <div>
@@ -74,16 +150,11 @@ export default function Home() {
           </div>
           <div className="flex justify-center gap-3 mt-3">
             {data.pagination.current_page !== 1 && (
-              <button onClick={() => setCurrentPage(currentPage - 1)}>
-                Prev
-              </button>
+              <button onClick={handleClickPrev}>Prev</button>
             )}
             {data.pagination.has_next_page && (
               <button
-                onClick={() =>
-                  data.pagination.has_next_page &&
-                  setCurrentPage(currentPage + 1)
-                }
+                onClick={data.pagination.has_next_page && handleClickNext}
               >
                 Next
               </button>
