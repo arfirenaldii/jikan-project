@@ -39,7 +39,7 @@ export default function Home() {
   const getData = async () => {
     try {
       const response = await fetch(
-        `https://api.jikan.moe/v4/anime?page=${currentPage}&limit=3&q=${q}`
+        `https://api.jikan.moe/v4/anime?page=${currentPage}&limit=15&q=${q}`
       );
 
       if (!response.ok) {
